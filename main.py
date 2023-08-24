@@ -5,7 +5,7 @@ import os
 import subprocess
 
 MAX_FILE_SIZE_MB = 25
-openai.api_key = "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"
+openai.api_key = "sk-**********************************************"
 supported_file_types = [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]
 
 WARN_cnt = 0
