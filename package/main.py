@@ -49,7 +49,7 @@ The program will auto convert supported files in the working directory into WAV 
 work_dir = input("Enter the directory your audio file located\n\
 (Current path will be used as working directory if nothing is entered): ")
 if work_dir == "":
-    work_dir = base_path
+    work_dir = os.getcwd()
     print(f"Nothing entered. Changing working directory to current path {work_dir}.\n")
 else:
     print(f"Changing working directory to {work_dir}.\n")
