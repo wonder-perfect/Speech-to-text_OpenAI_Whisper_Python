@@ -3,9 +3,21 @@
 import openai
 import os
 import subprocess
+import configparser
+import sys
 
+if hasattr(sys, 'frozen'):
+    base_path = os.path.dirname(sys.executable)
+else:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+print(base_path)
+config_path = os.path.join(base_path, 'config.ini')
+
+config = configparser.ConfigParser()
+config.read(config_path)
+
+openai.api_key = config.get("Settings", "openai_api_key")
 MAX_FILE_SIZE_MB = 25
-openai.api_key = "sk-**********************************************"
 supported_file_types = [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]
 
 WARN_cnt = 0
@@ -17,7 +29,7 @@ The program will auto convert supported files in the working directory into WAV 
 work_dir = input("Enter the directory your audio file located\n\
 (Current path will be used as working directory if nothing is entered): ")
 if work_dir == "":
-    work_dir = os.getcwd()
+    work_dir = os.path.dirname(os.path.abspath(__file__))
     print(f"Nothing entered. Changing working directory to current path {work_dir}.\n")
 else:
     print(f"Changing working directory to {work_dir}.\n")
