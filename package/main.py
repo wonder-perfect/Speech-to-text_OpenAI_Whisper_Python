@@ -60,11 +60,13 @@ with open(config_path, encoding='utf-8') as config_file:
 try:
     openai.api_key = config.get("Settings", "openai_api_key")
 except configparser.NoSectionError:
-    print('\n\033[91mERR: Section "Settings" not found in config.ini\033[0m')
+    print('\n\033[91mERR: Section "Settings" not found in config.ini\n\
+Consider delete config.ini and rerun this program to generate a default config file.\033[0m')
     os.system("pause")
     sys.exit(1)
 except configparser.NoOptionError:
-    print('\n\033[91mERR: Option "openai_api_key" not found in config.ini\033[0m')
+    print('\n\033[91mERR: Option "openai_api_key" not found in config.ini\n\
+Consider delete config.ini and rerun this program to generate a default config file.\033[0m')
     os.system("pause")
     sys.exit(1)
 
