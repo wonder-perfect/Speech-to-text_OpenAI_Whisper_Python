@@ -20,24 +20,34 @@ jobs:
     - name: Install dependencies
       run: |
         cd ./package
+  
+        python -m venv venv
+        source venv/bin/activate
+      
         python -m pip install --upgrade pip
-        pip freeze > requirements.txt
         pip install -r requirements.txt
         pip install py2app openai
+      
+        curl -JL -o ffmpeg.zip https://evermeet.cx/ffmpeg/get/zip
+      
+        unzip ffmpeg.zip
+      
+        for zip_file in *.zip; do
+            unzip "$zip_file"
+        done
+    
+        deactivate
 
     - name: Build macOS package
       run: |
         cd ./package
+        python -m venv venv
+        source venv/bin/activate
         python setup.py py2app
+        deactivate
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3.1.2
       with:
         name: macos-package
         path: package/dist/
-
-    - name: Upload config file
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: config-file
-        path: package/config.ini
