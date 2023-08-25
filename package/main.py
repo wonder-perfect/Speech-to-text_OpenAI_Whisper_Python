@@ -45,10 +45,11 @@ config_path = os.path.join(base_path, 'config.ini')
 if os.path.exists(config_path):
     print("\nconfig.ini file found. Loading config...")
 else:
-    print("\033[91mERR: config.ini file not found!\n\
-Please check if the file is located in the same directory with program file!\033[0m")
-    os.system("pause")
-    sys.exit(1)
+    print("\033[93mWARN: config.ini file not found!\nGenerating config file...")
+    config_ini = '# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = your_api_key\ntranslation = False\nmodel = whisper-1\n\
+prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n'
+    with open(config_path, "w", encoding='utf-8') as config_file:
+        config_file.write(config_ini)
 
 config = configparser.ConfigParser()
 
