@@ -10,13 +10,33 @@ if hasattr(sys, 'frozen'):
     base_path = os.path.dirname(sys.executable)
 else:
     base_path = os.path.dirname(os.path.abspath(__file__))
-print(base_path)
+
 config_path = os.path.join(base_path, 'config.ini')
+
+if os.path.exists(config_path):
+    print("\nconfig.ini file found. Loading config...")
+else:
+    print("\033[91mERR: config.ini file not found!\n\
+Please check if the file is located in the same directory with program file!\033[0m")
+    os.system("pause")
+    sys.exit(1)
 
 config = configparser.ConfigParser()
 config.read(config_path)
 
-openai.api_key = config.get("Settings", "openai_api_key")
+try:
+    openai.api_key = config.get("Settings", "openai_api_key")
+except configparser.NoSectionError:
+    print('\n\033[91mERR: Section "Settings" not found in config.ini\033[0m')
+    os.system("pause")
+    sys.exit(1)
+except configparser.NoOptionError:
+    print('\n\033[91mERR: Option "openai_api_key" not found in config.ini\033[0m')
+    os.system("pause")
+    sys.exit(1)
+
+print("Config loaded successfully.")
+
 MAX_FILE_SIZE_MB = 25
 supported_file_types = [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]
 
@@ -29,7 +49,7 @@ The program will auto convert supported files in the working directory into WAV 
 work_dir = input("Enter the directory your audio file located\n\
 (Current path will be used as working directory if nothing is entered): ")
 if work_dir == "":
-    work_dir = os.path.dirname(os.path.abspath(__file__))
+    work_dir = base_path
     print(f"Nothing entered. Changing working directory to current path {work_dir}.\n")
 else:
     print(f"Changing working directory to {work_dir}.\n")
