@@ -19,8 +19,10 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd ./package
         python -m pip install --upgrade pip
-        pip install py2app
+        pip freeze > requirements.txt
+        pip install -r requirements.txt
 
     - name: Build macOS package
       run: |
