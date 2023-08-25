@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v3.1.2
       with:
         name: macos-package
-        path: dist/
+        path: package/dist/
 
     - name: Upload config file
       uses: actions/upload-artifact@v3.1.2
