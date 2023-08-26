@@ -11,6 +11,23 @@ import shutil
 WARN_cnt = 0
 
 
+def generate_config(config_path):
+    if os.path.exists(config_path):
+        os.remove(config_path)
+    config_ini = '# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = your_api_key\ntranslation = False\nmodel = whisper-1\n\
+prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n\n[GPT]\nmodel=gpt-3.5-turbo\npunctuation=True\n'
+    with open(config_path, "w", encoding='utf-8') as config_file:
+        config_file.write(config_ini)
+
+
+def output(output_path, transcript, response_format):
+    with open(output_path, "w", encoding="utf-8") as output_file:
+        if response_format == "json" or response_format == "verbose_json":
+            json.dump(transcript, output_file, indent=4)
+        else:
+            output_file.write(transcript)
+
+
 def delete_all_files_in_directory(directory_path):
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)
@@ -81,10 +98,7 @@ if os.path.exists(config_path):
     print("\nconfig.ini file found. Loading config...")
 else:
     print("\033[93mWARN: config.ini file not found!\nGenerating config file...")
-    config_ini = '# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = your_api_key\ntranslation = False\nmodel = whisper-1\n\
-prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n'
-    with open(config_path, "w", encoding='utf-8') as config_file:
-        config_file.write(config_ini)
+    generate_config(config_path)
 
 config = configparser.ConfigParser()
 
@@ -95,59 +109,95 @@ with open(config_path, encoding='utf-8') as config_file:
 try:
     openai.api_key = config.get("Settings", "openai_api_key")
 except configparser.NoSectionError:
-    print('\n\033[91mERR: Section "Settings" not found in config.ini\n\
-Consider delete config.ini and rerun this program to generate a default config file.\033[0m')
-    os.system("pause")
-    sys.exit(1)
+    generate_config(config_path)
+    WARN_cnt += 1
+    print('\n\033[93mWARN: Section "Settings" not found in config.ini\n\
+Generating default config file...\033[0m')
 except configparser.NoOptionError:
-    print('\n\033[91mERR: Option "openai_api_key" not found in config.ini\n\
-Consider delete config.ini and rerun this program to generate a default config file.\033[0m')
-    os.system("pause")
-    sys.exit(1)
+    generate_config(config_path)
+    WARN_cnt += 1
+    print('\n\033[93mWARN: Option "openai_api_key" not found in config.ini\n\
+Generating default config file...\033[0m')
 
 try:
     translation = config.get("Settings", "translation")
 except configparser.NoOptionError:
     translation = False
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "translation" not found in config.ini\nTranslation set to {translation}.\033[0m')
+    print(f'\n\033[93mWARN: Option "translation" in section "Settings" not found in config.ini\n\
+Translation set to {translation}.\033[0m')
 
 try:
     model = config.get("Settings", "model")
 except configparser.NoOptionError:
     model = "whisper-1"
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "model" not found in config.ini\nModel set to {model}.\033[0m')
+    print(f'\n\033[93mWARN: Option "model" in section "Settings" not found in config.ini\n\
+Model set to {model}.\033[0m')
 
 try:
     prompt = config.get("Settings", "prompt")
 except configparser.NoOptionError:
     prompt = ""
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "prompt" not found in config.ini\nPrompt set to {prompt}.\033[0m')
+    print(f'\n\033[93mWARN: Option "prompt" in section "Settings" not found in config.ini\n\
+Prompt set to {prompt}.\033[0m')
 
 try:
     response_format = config.get("Settings", "response_format")
 except configparser.NoOptionError:
     response_format = "text"
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "response_format" not found in config.ini\nResponse_format set to {response_format}.\033[0m')
+    print(f'\n\033[93mWARN: Option "response_format" in section "Settings" not found in config.ini\n\
+Response_format set to {response_format}.\033[0m')
 
 try:
     temperature = config.get("Settings", "temperature")
 except configparser.NoOptionError:
     temperature = 0
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "temperature" not found in config.ini\nTemperature set to {temperature}.\033[0m')
+    print(f'\n\033[93mWARN: Option "temperature" in section "Settings" not found in config.ini\n\
+Temperature set to {temperature}.\033[0m')
 
 try:
     language = config.get("Settings", "language")
 except configparser.NoOptionError:
     language = "auto"
     WARN_cnt += 1
-    print(f'\n\033[93mWARN: Option "language" not found in config.ini\nTemperature set to {language}.\033[0m')
+    print(f'\n\033[93mWARN: Option "language" in section "Settings" not found in config.ini\n\
+Language set to {language}.\033[0m')
+
+
+try:
+    gpt_model = config.get("GPT", "model")
+except configparser.NoOptionError:
+    gpt_model = "gpt-3.5-turbo"
+    WARN_cnt += 1
+    print(f'\n\033[93mWARN: Option "model" in section "GPT" not found in config.ini\n\
+GPT_Model set to {gpt_model}.\033[0m')
+    
+try:
+    punctuation = config.get("GPT", "punctuation")
+except configparser.NoOptionError:
+    punctuation = "True"
+    WARN_cnt += 1
+    print(f'\n\033[93mWARN: Option "punctuation" in section "GPT" not found in config.ini\n\
+Puncuation set to {punctuation}.\033[0m')
 
 print("\nConfig loaded successfully.")
+
+
+def gpt_punctuation(transcript):
+    prompt = "Add the punctuation for the following text.\n" + transcript
+
+    completion = openai.ChatCompletion.create(
+        model = gpt_model,
+        messages = [
+            {"role": "system", "content": "Do not explain. Just follow the instructions."},
+            {"role": "function", "name": "add_punctuation_to_text", "content": prompt}
+        ]
+    )
+    return completion
 
 
 MAX_FILE_SIZE_MB = 25
@@ -236,8 +286,11 @@ for filename in filenames:
         WARN_cnt += 1
         transcribe_cnt += 1
         continue
-
-    output_path = os.path.join(work_dir, os.path.splitext(filename)[0] + output_file_ext)
+    
+    output_dir = os.path.join(work_dir, "output")
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    transcript_output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + "_transcript" + output_file_ext)
 
     with open(preprocess_path, "rb") as audio_file:
         if translation == "True":
@@ -252,13 +305,22 @@ Response_format: {response_format}, Temperature: {temperature}, Language: {langu
     print(transcript)
     transcribe_cnt += 1
 
-    with open(output_path, "w", encoding="utf-8") as output_file:
-        if response_format == "json" or response_format == "verbose_json":
-            json.dump(transcript, output_file, indent=4)
-        else:
-            output_file.write(transcript)
+    output(transcript_output_path, transcript, response_format)
+    print(f"Transcript output saved in file {transcript_output_path}\n")
 
-print(f"Transcript ouput saved in file {output_path}")
+    if punctuation == "False":
+        continue
+
+    punctuation_output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + "_punctuation" + output_file_ext)
+
+    print("Adding punctuation to the transcript...\n")
+
+    transcript_punctuation = gpt_punctuation(str(transcript))["choices"][0]["message"]["content"]
+    print(transcript_punctuation)
+
+    output(punctuation_output_path, transcript_punctuation, response_format)
+    print(f"Transcript with punctuation output saved in file {punctuation_output_path}\n")
+
 
 if WARN_cnt == 0:
     print(f"\nPROGRAM EXECUTED SUCCESSFULLY WITH {WARN_cnt} WARNINGS")
