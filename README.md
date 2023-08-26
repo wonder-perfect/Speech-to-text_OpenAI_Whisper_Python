@@ -1,4 +1,4 @@
-# Speech-to-text using OpenAI Whisper in Python
+# Speech-to-text using OpenAI Whisper API in Python
 
 This repository contains Python code that utilizes OpenAI's Whisper ASR (Automatic Speech Recognition) system to convert spoken language into written text.
 
@@ -46,6 +46,8 @@ The goal of this project is to showcase the integration of OpenAI's Whisper ASR 
 
 In the `config.ini` file, you can adjust various settings to tailor the behavior of the speech-to-text conversion according to your needs.
 
+### [Settings]
+
 * `openai_api_key`: Your OpenAI API Key for invoking Whisper model. (e.g. sk-5x4W*****************************************Krs)
 * `translation`: Determines whether Whisper translate your audio into English or not
 * `model`: The Whisper model this program invokes (Only support whisper-1 now)
@@ -53,6 +55,11 @@ In the `config.ini` file, you can adjust various settings to tailor the behavior
 * `response_format`: [OpenAI official supported formats](https://platform.openai.com/docs/api-reference/audio/createTranscription#response_format): json, text, srt, verbose_json, and vtt
 * `temperature`: [OpenAI official explanation for temperature](https://platform.openai.com/docs/api-reference/audio/createTranscription#temperature)
 * `language`: [OpenAI official explanation for language](https://platform.openai.com/docs/api-reference/audio/createTranscription#language) For this project only, setting it to auto means the model will recognize the language automaticly. Strongly recommend setting this in [ISO-631-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format
+
+### [GPT]
+
+* `model`: The GPT model for adding punctuations to transcript
+* `punctuation`: Enable adding punctuations to `response_format` *text* if sets to `True`
 
 ## Contribution
 Feel free to contribute to this project by improving existing code, adding new features, or fixing issues. If you have any questions or suggestions, please create an issue or submit a pull request.
