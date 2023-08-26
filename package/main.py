@@ -308,7 +308,7 @@ Response_format: {response_format}, Temperature: {temperature}, Language: {langu
     output(transcript_output_path, transcript, response_format)
     print(f"Transcript output saved in file {transcript_output_path}\n")
 
-    if punctuation == "False":
+    if punctuation == "False" or response_format != "text":
         continue
 
     punctuation_output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + "_punctuation" + output_file_ext)
