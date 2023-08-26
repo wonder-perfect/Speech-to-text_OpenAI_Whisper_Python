@@ -15,7 +15,7 @@ def generate_config(config_path):
     if os.path.exists(config_path):
         os.remove(config_path)
     config_ini = '# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = your_api_key\ntranslation = False\nmodel = whisper-1\n\
-prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n\n[GPT]\nmodel=gpt-3.5-turbo\npunctuation=True\n'
+prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n\n[GPT]\nmodel = gpt-3.5-turbo\npunctuation = True\n'
     with open(config_path, "w", encoding='utf-8') as config_file:
         config_file.write(config_ini)
 
