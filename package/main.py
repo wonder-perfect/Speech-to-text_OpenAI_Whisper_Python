@@ -268,6 +268,7 @@ for filename in filenames:
         if os.path.getsize(tmp_output_path) == os.path.getsize(preprocess_file_path):
             os.remove(tmp_output_path)
             isSame = True
+            print(f"Files {tmp_output_path} and {preprocess_file_path} are same. Skipping...")
             break
     
     if isSame:
@@ -319,7 +320,7 @@ Response_format: {response_format}, Temperature: {temperature}, Language: {langu
     print(transcript_punctuation)
 
     output(punctuation_output_path, transcript_punctuation, response_format)
-    print(f"Transcript with punctuation output saved in file {punctuation_output_path}\n")
+    print(f"\nTranscript with punctuation output saved in file {punctuation_output_path}\n")
 
 
 if WARN_cnt == 0:
