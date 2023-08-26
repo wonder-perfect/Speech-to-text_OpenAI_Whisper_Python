@@ -50,7 +50,7 @@ jobs:
 
         create-dmg \
                     --volname "pySTT_Whisper_API" \
-                    --volicon "whisper.ico" \
+                    --volicon "icons/whisper.ico" \
                     --icon-size 100 \
                     --icon "pySTT_Whisper_API.app" 175 120 \
                     --hide-extension "pySTT_Whisper_API.app" \
