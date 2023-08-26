@@ -34,6 +34,15 @@ jobs:
         curl -JL -o ffmpeg.zip https://evermeet.cx/ffmpeg/get/zip
         unzip -o ffmpeg.zip
 
+        deactivate
+
+    - name: Build macOS package
+      run: |
+        cd ./package
+
+        python -m venv venv
+        source venv/bin/activate
+
         pyinstaller \
                     --name 'pySTT_Whisper_API' \
                     --icon 'whisper.ico' \
@@ -53,15 +62,7 @@ jobs:
                     --app-drop-link 425 120 \
                     "dist/pySTT_Whisper_API.dmg" \
                     "dist/dmg/"
-
-        deactivate
-
-    - name: Build macOS package
-      run: |
-        cd ./package
-        python -m venv venv
-        source venv/bin/activate
-        python setup.py py2app
+                    
         deactivate
 
     - name: Upload artifacts
