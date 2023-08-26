@@ -29,7 +29,7 @@ jobs:
 
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pyinstaller
+        pip install py2app
       
         curl -JL -o ffmpeg.zip https://evermeet.cx/ffmpeg/get/zip
         unzip -o ffmpeg.zip
@@ -43,12 +43,7 @@ jobs:
         python -m venv venv
         source venv/bin/activate
 
-        pyinstaller \
-                    --name 'pySTT_Whisper_API' \
-                    --icon 'whisper.ico' \
-                    --add-data='./config.ini:.' \
-                    --add-data='./ffmpeg:.' \
-                    main.py
+        python setup.py py2app
         
         mkdir -p dist/dmg
         cp -r "dist/pySTT_Whisper_API.app" dist/dmg
@@ -58,7 +53,7 @@ jobs:
                     --volicon "whisper.ico" \
                     --icon-size 100 \
                     --icon "pySTT_Whisper_API.app" 175 120 \
-                    --hide-extension "Huanbu.app" \
+                    --hide-extension "pySTT_Whisper_API.app" \
                     --app-drop-link 425 120 \
                     "dist/pySTT_Whisper_API.dmg" \
                     "dist/dmg/"
