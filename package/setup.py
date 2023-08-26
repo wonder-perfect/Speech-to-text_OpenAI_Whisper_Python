@@ -4,7 +4,7 @@ APP = ['main.py']
 DATAFILES = ['config.ini', 'ffmpeg']
 OPTIONS = {
     'argv_emulation': True,
-    'arch': 'universal2',
+    'arch': 'arm64',
     'iconfile': './icons/whisper.icns'
 }
 
