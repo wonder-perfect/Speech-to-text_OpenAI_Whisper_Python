@@ -47,7 +47,7 @@ jobs:
                     --name 'pySTT_Whisper_API' \
                     --icon 'whisper.ico' \
                     --add-data='./config.ini:.' \
-                    --add-data='./ffmpeg' \
+                    --add-data='./ffmpeg:.' \
                     main.py
         
         mkdir -p dist/dmg
@@ -62,7 +62,7 @@ jobs:
                     --app-drop-link 425 120 \
                     "dist/pySTT_Whisper_API.dmg" \
                     "dist/dmg/"
-                    
+
         deactivate
 
     - name: Upload artifacts
