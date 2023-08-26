@@ -5,7 +5,7 @@ DATAFILES = ['config.ini', 'ffmpeg']
 OPTIONS = {
     'argv_emulation': True,
     'arch': 'universal2',
-    'iconfile': './icon/whisper.icns'
+    'iconfile': './icons/whisper.icns'
 }
 
 setup(
