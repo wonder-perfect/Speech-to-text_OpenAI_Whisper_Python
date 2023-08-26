@@ -30,11 +30,7 @@ jobs:
       
         curl -JL -o ffmpeg.zip https://evermeet.cx/ffmpeg/get/zip
       
-        unzip ffmpeg.zip
-      
-        for zip_file in *.zip; do
-            unzip "$zip_file"
-        done
+        unzip -o ffmpeg.zip
     
         deactivate
 
