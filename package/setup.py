@@ -1,7 +1,7 @@
 from setuptools import setup
 
 APP = ['main.py']
-DATAFILES = ['config.ini']
+DATAFILES = ['config.ini', 'ffmpeg']
 OPTIONS = {
     'argv_emulation': True
 }
