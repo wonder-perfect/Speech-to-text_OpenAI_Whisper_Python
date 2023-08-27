@@ -259,7 +259,8 @@ for filename in filenames:
     preprocess_path = os.path.join(preprocess_dir, preprocess_filename)
     print(f"Converting {filename} to WAV...\n")
 
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-i", input_file_path, "-ac", "1", "-ar", "16000", tmp_output_path])
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-i", input_file_path, \
+                    "-ac", "1", "-ar", "16000", "-sample_fmt", "s16", tmp_output_path])
     print(f"Converted {filename} to ffmpeg_tmp.wav\n")
 
     preprocess_files = os.listdir(preprocess_dir)

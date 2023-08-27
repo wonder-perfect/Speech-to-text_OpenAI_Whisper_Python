@@ -29,7 +29,7 @@ jobs:
 
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install py2app
+        pip install py2app cchardet
       
         curl -JL -o ffmpeg.zip https://evermeet.cx/ffmpeg/get/zip
         unzip -o ffmpeg.zip
