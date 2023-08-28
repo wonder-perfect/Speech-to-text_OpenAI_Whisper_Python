@@ -323,6 +323,8 @@ Response_format: {response_format}, Temperature: {temperature}, Language: {langu
     output(punctuation_output_path, transcript_punctuation, response_format)
     print(f"\nTranscript with punctuation output saved in file {punctuation_output_path}\n")
 
+delete_all_files_in_directory(preprocess_dir)
+print(f"Deleting all files in preprocess directory {preprocess_dir}")
 
 if WARN_cnt == 0:
     print(f"\nPROGRAM EXECUTED SUCCESSFULLY WITH {WARN_cnt} WARNINGS")
