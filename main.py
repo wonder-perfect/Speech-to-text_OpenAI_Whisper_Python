@@ -177,13 +177,14 @@ def main():
     else:
         base_path = os.path.dirname(os.path.abspath(__file__))
 
-    config_path = os.path.join(base_path, 'config.ini')
+    config_dir = os.path.join(base_path, "./config")
+    config_path = os.path.join(config_dir, "config.ini")
     tmp_output_dir = os.path.join(base_path, "tmp")
     tmp_output_path = os.path.join(tmp_output_dir, "ffmpeg_tmp.wav")
     preprocess_dir = os.path.join(base_path, "preprocess_audio")
     loop_trigger_path = os.path.join(preprocess_dir, "loop_trigger")
 
-    config_values = init.load_config(config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path)
+    config_values = init.load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path)
 
     openai.api_key = config_values["openai_api_key"]
     translation = config_values["translation"]

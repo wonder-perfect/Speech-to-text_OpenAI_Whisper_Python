@@ -4,10 +4,10 @@ import configparser
 import os
 
 # Generate default config file if it's not exsist
-def generate_config(config_path):
-    if os.path.exists(config_path):
-        os.remove(config_path)
-    config_ini = '# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = your_api_key\ntranslation = False\nmodel = whisper-1\n\
+def generate_config(config_dir, config_path):
+    delete_all_files_in_directory(config_dir)
+    openai_api_key = input("Enter your OpenAI API Key: ")
+    config_ini = f'# -*- coding: UTF-8 -*-\n\n[Settings]\nopenai_api_key = {openai_api_key}\ntranslation = False\nmodel = whisper-1\n\
 prompt = \nresponse_format = text\ntemperature = 0\nlanguage = auto\n\n[GPT]\nmodel = gpt-3.5-turbo\npunctuation = False\n'
     with open(config_path, "w", encoding='utf-8') as config_file:
         config_file.write(config_ini)
@@ -20,7 +20,7 @@ def delete_all_files_in_directory(directory_path):
             os.remove(file_path)
 
 # Initialize working environment
-def load_config(config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path):
+def load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path):
 
     # Create tmp files and dirs
     if os.path.exists(preprocess_dir):
@@ -41,8 +41,8 @@ def load_config(config_path, tmp_output_dir, tmp_output_path, preprocess_dir, lo
     if os.path.exists(config_path):
         print("\nconfig.ini file found. Loading config...")
     else:
-        print("\033[93mWARN: config.ini file not found!\nGenerating config file...")
-        generate_config(config_path)
+        print("\033[93mWARN: config.ini file not found!\nGenerating config file...\033[0m\n")
+        generate_config(config_dir, config_path)
 
     # Read the config file
     config = configparser.ConfigParser()
@@ -53,11 +53,11 @@ def load_config(config_path, tmp_output_dir, tmp_output_path, preprocess_dir, lo
     try:
         openai_api_key = config.get("Settings", "openai_api_key")
     except configparser.NoSectionError:
-        generate_config(config_path)
+        generate_config(config_dir, config_path)
         print('\n\033[93mWARN: Section "Settings" not found in config.ini\n\
-    Generating default config file...\033[0m')
+Generating default config file...\033[0m')
     except configparser.NoOptionError:
-        generate_config(config_path)
+        generate_config(config_dir, config_path)
         print('\n\033[93mWARN: Option "openai_api_key" not found in config.ini\n\
 Generating default config file...\033[0m')
 
