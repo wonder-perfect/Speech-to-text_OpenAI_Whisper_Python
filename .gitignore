@@ -1,1 +1,4 @@
 config.ini
+preprocess_audio
+tmp
+__pycache__
