@@ -158,7 +158,7 @@ Response_format: {response_format}, Temperature: {temperature}, Language: {langu
 
         print("Adding punctuation to the transcript...\n")
 
-        transcript_punctuation = gpt_punctuation(str(transcript), gpt_model)["choices"][0]["message"]["content"]
+        transcript_punctuation = gpt_punctuation(str(transcript), gpt_model).choices[0].message
         print(transcript_punctuation)
 
         output(punctuation_output_path, transcript_punctuation, response_format)
