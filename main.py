@@ -1,12 +1,14 @@
 # -*- coding: UTF-8 -*-
 
-import openai
+from openai import OpenAI
 import os
 import subprocess
 import sys
 import json
 import shutil
 import init
+
+client = OpenAI()
 
 def output(output_path, transcript, response_format):
     with open(output_path, "w", encoding="utf-8") as output_file:
@@ -24,32 +26,32 @@ def compare_files(file1_path, file2_path):
 
 def whisper_translate(file, model, prompt, response_format, temperature):
     if prompt == "":
-        return openai.Audio.translate(file=file, model=model, response_format=response_format, \
+        return client.audio.translations.create(file=file, model=model, response_format=response_format, \
                                       temperature=temperature)
     else:
-        return openai.Audio.translate(file=file, model=model, prompt=prompt, response_format=response_format, \
+        return client.audio.translations.create(file=file, model=model, prompt=prompt, response_format=response_format, \
                                       temperature=temperature)
 
 def whisper_transcribe(file, model, prompt, response_format, temperature, language):
     if prompt == "":
         if language == "auto":
-            return openai.Audio.transcribe(file=file, model=model, response_format=response_format, \
+            return client.audio.transcriptions.create(file=file, model=model, response_format=response_format, \
                                           temperature=temperature)
         else:
-            return openai.Audio.transcribe(file=file, model=model, response_format=response_format, \
+            return client.audio.transcriptions.create(file=file, model=model, response_format=response_format, \
                                           temperature=temperature, language=language)
     else:
         if language == "auto":
-            return openai.Audio.transcribe(file=file, model=model, prompt=prompt, response_format=response_format, \
+            return client.audio.transcriptions.create(file=file, model=model, prompt=prompt, response_format=response_format, \
                                           temperature=temperature)
         else:
-            return openai.Audio.transcribe(file=file, model=model, prompt=prompt, response_format=response_format, \
+            return client.audio.transcriptions.create(file=file, model=model, prompt=prompt, response_format=response_format, \
                                           temperature=temperature, language=language)
 
 def gpt_punctuation(transcript, gpt_model):
     prompt = "Add the punctuation for the following text.\n" + transcript
 
-    completion = openai.ChatCompletion.create(
+    completion = client.chat.completions.create(
         model = gpt_model,
         messages = [
             {"role": "system", "content": "Do not explain. Just follow the instructions."},
@@ -186,7 +188,7 @@ def main():
 
     config_values = init.load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path)
 
-    openai.api_key = config_values["openai_api_key"]
+    client.api_key = config_values["openai_api_key"]
     translation = config_values["translation"]
     model = config_values["model"]
     prompt = config_values["prompt"]
