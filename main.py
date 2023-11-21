@@ -188,7 +188,7 @@ def main():
 
     config_values = init.load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path)
 
-    client.api_key = config_values["openai_api_key"]
+    client.api_key = os.environ.get["OPENAI_API_KEY"] or config_values["openai_api_key"]
     translation = config_values["translation"]
     model = config_values["model"]
     prompt = config_values["prompt"]
