@@ -237,8 +237,6 @@ def main():
     gpt_model = config_values['punctuation']['model']
     punctuation = config_values['punctuation']['punctuation']
 
-    print(f"[DEBUG]: OpenAI API Key: {client.api_key}\n") # DEBUG
-
     output_file_ext = map_output_file_ext(response_format)
 
     filenames, work_dir = user_interact(supported_file_types, supported_output_formats)
