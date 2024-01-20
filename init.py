@@ -5,6 +5,7 @@ import os
 
 DEFAULT_CONFIG = {
     "general": {
+        "openai_base_url": "",
         "openai_api_key": "",
         "temperature": "0"
     },
@@ -40,7 +41,14 @@ def delete_all_files_in_directory(directory_path):
             os.remove(file_path)
 
 # Initialize working environment
-def load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, preprocess_dir, loop_trigger_path, supported_output_formats, supported_models):
+def load_config(config_dir,
+                config_path,
+                tmp_output_dir,
+                tmp_output_path,
+                preprocess_dir,
+                loop_trigger_path,
+                supported_output_formats,
+                supported_models):
 
     # Create tmp files and dirs
     if os.path.exists(preprocess_dir):
@@ -53,31 +61,35 @@ def load_config(config_dir, config_path, tmp_output_dir, tmp_output_path, prepro
 
     if os.path.exists(tmp_output_path):
         os.remove(tmp_output_path)
-        print(f"Exising tmp file {tmp_output_path} found, deleting...")
+        print(f"[INFO]: Exising tmp file {tmp_output_path} found, deleting...")
     elif not os.path.exists(tmp_output_dir):
         os.mkdir(tmp_output_dir)
-        print(f"Making new tmp directory {tmp_output_dir} ...\n")
+        print(f"[INFO]: Making new tmp directory {tmp_output_dir} ...\n")
 
     if os.path.exists(config_path):
         config = json.load(open(config_path, encoding='utf-8'))
-        print("\nconfig.json file found. Loading config...")
+        print("\n[INFO]: config.json file found. Loading config...")
     else:
         generate_config(config_dir, config_path)
         print("\033[93m[WARN]: config.json file not found!\nGenerating config file...\033[0m\n")
 
-    config['audio']['response_format'], config['audio']['model'] = is_config_values_valid(
+    config['general']['openai_api_key'], config['audio']['response_format'], config['audio']['transcript_model'] = is_config_values_valid(
+        config['general']['openai_api_key'],
         config['audio']['response_format'], 
         supported_output_formats, 
-        config['audio']['model'], 
+        config['audio']['transcript_model'], 
         supported_models
     )
 
-    print("\nConfig loaded successfully.")
+    print("[INFO]: Config loaded successfully.\n")
     
     return config
 
 # Check if config values are valid
-def is_config_values_valid(response_format, supported_output_formats, model, supported_models):
+def is_config_values_valid(openai_api_key, response_format, supported_output_formats, model, supported_models):
+    if openai_api_key == "":
+        openai_api_key = input('\033[93m[WARN]: Key "openai_api_key" not set in config.\033[0m\n\n\
+Enter your OpenAI API Key: (Environment variable will be used if nothing is entered) ')
 
     if response_format not in supported_output_formats:
         response_format = supported_output_formats[1]
@@ -87,4 +99,4 @@ def is_config_values_valid(response_format, supported_output_formats, model, sup
         model = supported_models[0]
         print(f"\n\033[93m[WARN]: Unsupported model. Model set to {model}.\033[0m")
     
-    return response_format, model
+    return openai_api_key, response_format, model

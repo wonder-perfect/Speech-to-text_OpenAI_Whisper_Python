@@ -8,8 +8,6 @@ import json
 import shutil
 import init
 
-client = OpenAI()
-
 def map_output_file_ext(response_format):
     output_file_ext_mapping = {
         "json": ".json",
@@ -34,7 +32,7 @@ def compare_files(file1_path, file2_path):
 
     return content1 == content2
 
-def whisper_translate(file, model, prompt, response_format, temperature):
+def whisper_translate(client: OpenAI, file, model, prompt, response_format, temperature):
     params = {
         'file': file,
         'model': model,
@@ -45,7 +43,7 @@ def whisper_translate(file, model, prompt, response_format, temperature):
         params['prompt'] = prompt
     return client.audio.translations.create(**params)
 
-def whisper_transcribe(file, model, prompt, response_format, temperature, language):
+def whisper_transcribe(client: OpenAI, file, model, prompt, response_format, temperature, language):
     params = {
         'file': file,
         'model': model,
@@ -58,14 +56,12 @@ def whisper_transcribe(file, model, prompt, response_format, temperature, langua
         params['language'] = language
     return client.audio.transcriptions.create(**params)
 
-def gpt_punctuation(transcript, gpt_model):
-    prompt = "Add the punctuation for the following text.\n" + transcript
-
+def gpt_punctuation(client: OpenAI, transcript, model):
     completion = client.chat.completions.create(
-        model = gpt_model,
+        model = model,
         messages = [
-            {"role": "system", "content": "Do not explain. Just follow the instructions."},
-            {"role": "function", "name": "add_punctuation_to_text", "content": prompt}
+            {"role": "system", "content": "Add punctuation to the following text"},
+            {"role": "user", "content": transcript}
         ]
     )
     return completion
@@ -98,18 +94,23 @@ OUTPUT FORMAT SUPPORTED: {supported_output_formats}\033[0m\n")
     return filenames, work_dir
 
 def process_audios(
+        client: OpenAI,
+
         filenames: str,
         work_dir: str,
         preprocess_dir: str,
         tmp_output_path: str,
         output_file_ext: str,
+
+        temperature: str,
+
         translation: str,
-        model: str,
+        transcript_model: str,
         prompt: str,
         response_format: str,
-        temperature: str,
         language: str,
-        gpt_model: str,
+
+        punctuation_model: str,
         punctuation: str
     ) -> None:
 
@@ -123,11 +124,11 @@ def process_audios(
         input_file_path = os.path.join(work_dir, filename)
         preprocess_filename = str(preprocess_cnt) + ".wav"
         preprocess_path = os.path.join(preprocess_dir, preprocess_filename)
-        print(f"Converting {filename} to WAV...\n")
+        print(f"[INFO]: Converting {filename} to WAV...\n")
 
         subprocess.run(["ffmpeg", "-loglevel", "error", "-i", input_file_path, \
                     "-ac", "1", "-ar", "16000", "-sample_fmt", "s16", tmp_output_path])
-        print(f"Converted {filename} to ffmpeg_tmp.wav\n")
+        print(f"[INFO]: Converted {filename} to ffmpeg_tmp.wav\n")
 
         preprocess_files = os.listdir(preprocess_dir)
         for preprocess_file in preprocess_files:
@@ -135,7 +136,7 @@ def process_audios(
             if os.path.getsize(tmp_output_path) == os.path.getsize(preprocess_file_path):
                 os.remove(tmp_output_path)
                 isSame = True
-                print(f"Files {tmp_output_path} and {preprocess_file_path} are same. Skipping...")
+                print(f"[INFO]: Files {tmp_output_path} and {preprocess_file_path} are same. Skipping...")
                 break
 
         if isSame:
@@ -150,7 +151,7 @@ def process_audios(
 
         file_size_mb = os.path.getsize(preprocess_path) / (1024 * 1024)
         if file_size_mb > MAX_FILE_SIZE_MB:
-            print(f"\033[93mWARN: File {filename} is larger than {MAX_FILE_SIZE_MB} and cannot be transcribed!\033[0m\n")
+            print(f"\033[93m[WARN]: File {filename} is larger than {MAX_FILE_SIZE_MB} and cannot be transcribed!\033[0m\n")
             transcribe_cnt += 1
             continue
 
@@ -162,24 +163,24 @@ def process_audios(
         with open(preprocess_path, "rb") as audio_file:
             params = {
                 'file': audio_file,
-                'model': model,
+                'model': transcript_model,
                 'prompt': prompt,
                 'response_format': response_format,
                 'temperature': temperature
             }
             if translation == "True":
-                transcript = whisper_translate(**params)
+                transcript = whisper_translate(client, **params)
             else:
                 params['language'] = language
-                transcript = whisper_transcribe(**params)
-            print(f"Output from {input_file_path} (Translation: {translation}, Model: {model}, Prompt: {prompt},\
+                transcript = whisper_transcribe(client, **params)
+            print(f"[INFO]: Output from {input_file_path} (Translation: {translation}, Model: {transcript_model}, Prompt: {prompt},\
                     Response_format: {response_format}, Temperature: {temperature}, Language: {language}):\n")
 
         print(transcript)
         transcribe_cnt += 1
 
         output(transcript_output_path, transcript, response_format)
-        print(f"Transcript output saved in file {transcript_output_path}\n")
+        print(f"[INFO]: Transcript output saved in file {transcript_output_path}\n")
 
         if punctuation == "False" or response_format != "text":
             continue
@@ -188,7 +189,7 @@ def process_audios(
 
         print("Adding punctuation to the transcript...\n")
 
-        transcript_punctuation = gpt_punctuation(str(transcript), gpt_model).choices[0].message
+        transcript_punctuation = gpt_punctuation(client, str(transcript), punctuation_model).choices[0].message
         print(transcript_punctuation)
 
         output(punctuation_output_path, transcript_punctuation, response_format)
@@ -216,7 +217,7 @@ def main():
     preprocess_dir = os.path.join(base_path, "preprocess_audio")
     loop_trigger_path = os.path.join(preprocess_dir, "loop_trigger")
 
-    config_values = init.load_config(
+    config = init.load_config(
         config_dir,
         config_path,
         tmp_output_dir,
@@ -227,34 +228,26 @@ def main():
         supported_models
     )
 
-    client.api_key =  config_values['general']['openai_api_key'] or os.environ.get('OPENAI_API_KEY')
-    translation = config_values['audio']['translation']
-    model = config_values['audio']['model']
-    prompt = config_values['audio']['prompt']
-    response_format = config_values['audio']['response_format']
-    temperature = config_values['general']['temperature']
-    language = config_values['audio']['language']
-    gpt_model = config_values['punctuation']['model']
-    punctuation = config_values['punctuation']['punctuation']
+    client = OpenAI(
+        api_key=config['general']['openai_api_key'],
+        base_url=config['general']['openai_base_url'] if config['general']['openai_base_url'] != "" else None
+    )
 
-    output_file_ext = map_output_file_ext(response_format)
-
+    output_file_ext = map_output_file_ext(config['audio']['response_format'])
     filenames, work_dir = user_interact(supported_file_types, supported_output_formats)
 
     process_audios(
+        client,
+
         filenames,
         work_dir,
         preprocess_dir,
         tmp_output_path,
         output_file_ext,
-        translation,
-        model,
-        prompt,
-        response_format,
-        temperature,
-        language,
-        gpt_model,
-        punctuation
+
+        config['general']['temperature'],
+        **config['audio'],
+        **config['punctuation']
     )
 
     cleanup(preprocess_dir)
