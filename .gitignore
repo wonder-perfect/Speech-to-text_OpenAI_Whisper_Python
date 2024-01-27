@@ -1,5 +1,6 @@
+.gitignore
 config
-config.ini
 preprocess_audio
 tmp
 __pycache__
+.vscode

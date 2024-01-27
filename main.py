@@ -155,11 +155,6 @@ def process_audios(
             transcribe_cnt += 1
             continue
 
-        output_dir = os.path.join(work_dir, "output")
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        transcript_output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + "_transcript" + output_file_ext)
-
         with open(preprocess_path, "rb") as audio_file:
             params = {
                 'file': audio_file,
@@ -178,6 +173,11 @@ def process_audios(
 
         print(transcript)
         transcribe_cnt += 1
+
+        output_dir = os.path.join(work_dir, "output")
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        transcript_output_path = os.path.join(output_dir, os.path.splitext(filename)[0] + "_transcript" + output_file_ext)
 
         output(transcript_output_path, transcript, response_format)
         print(f"[INFO]: Transcript output saved in file {transcript_output_path}\n")

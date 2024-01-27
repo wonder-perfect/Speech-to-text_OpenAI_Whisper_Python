@@ -90,6 +90,8 @@ def is_config_values_valid(openai_api_key, response_format, supported_output_for
     if openai_api_key == "":
         openai_api_key = input('\033[93m[WARN]: Key "openai_api_key" not set in config.\033[0m\n\n\
 Enter your OpenAI API Key: (Environment variable will be used if nothing is entered) ')
+    if openai_api_key == "":
+        openai_api_key = None
 
     if response_format not in supported_output_formats:
         response_format = supported_output_formats[1]
